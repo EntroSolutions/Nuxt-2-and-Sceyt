@@ -49,11 +49,13 @@ export default {
       this.loadingMessages = true
       
       try {
+        // Using real Sceyt SDK to get messages
         const messageQuery = channel.getMessages()
         const response = await messageQuery.load()
-        this.messages = response.messages
+        this.messages = response.messages || []
       } catch (error) {
         console.error('Error loading messages:', error)
+        this.messages = []
       } finally {
         this.loadingMessages = false
       }
@@ -63,9 +65,20 @@ export default {
       if (!this.selectedChannel) return
 
       try {
-        await this.selectedChannel.sendMessage(messageData)
+        // Using real Sceyt SDK message builder
+        const messageBuilder = this.selectedChannel.createMessageBuilder()
+        const messageToSend = messageBuilder
+          .setBody(messageData.body)
+          .setType('text')
+          .create()
+        
+        const message = await this.selectedChannel.sendMessage(messageToSend)
+        
+        // Add the message to local state
+        this.messages.push(message)
       } catch (error) {
         console.error('Error sending message:', error)
+        alert('Failed to send message. Check your Sceyt connection.')
       }
     },
 
@@ -76,7 +89,7 @@ export default {
       try {
         const messageQuery = this.selectedChannel.getMessages()
         const response = await messageQuery.loadPrev()
-        this.messages = [...response.messages, ...this.messages]
+        this.messages = [...(response.messages || []), ...this.messages]
       } catch (error) {
         console.error('Error loading older messages:', error)
       } finally {

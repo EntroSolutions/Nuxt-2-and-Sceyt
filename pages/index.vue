@@ -90,7 +90,11 @@ export default {
     async connectUser() {
       this.connecting = true
       try {
-        await this.$sceyt.connect(this.userId)
+        // For real Sceyt integration, you need a JWT token
+        // For demo purposes, we'll show the integration pattern
+        const accessToken = this.generateDemoToken(this.userId, this.username)
+        
+        await this.$sceyt.connect(accessToken)
         
         this.currentUser = {
           id: this.userId,
@@ -102,10 +106,17 @@ export default {
         
       } catch (error) {
         console.error('Connection failed:', error)
-        alert('Connection failed. Please try again.')
+        alert('Connection failed. Make sure you have valid Sceyt credentials configured.')
       } finally {
         this.connecting = false
       }
+    },
+
+    generateDemoToken(userId, username) {
+      // In a real application, you would get this JWT token from your backend
+      // This is just for demonstration purposes
+      console.warn('Using demo token generation - replace with real JWT from your backend!')
+      return 'demo-jwt-token-replace-with-real-one'
     },
 
     checkConnection() {
